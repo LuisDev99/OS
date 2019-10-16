@@ -7,6 +7,8 @@
 	.global _interrupt
 	.global _makeInterrupt21
 ;	.extern _handleInterrupt21
+;	.global _loadProgram
+	.global _printChar
 
 ;void putInMemory (int segment, int address, char character)
 _putInMemory:
@@ -18,6 +20,49 @@ _putInMemory:
 	mov cl,[bp+8]
 	mov ds,ax
 	mov [si],cl
+	pop ds
+	pop bp
+	ret
+
+;void printChar(char ch);
+_printChar:
+	push bp	
+	mov bp, sp
+	push ds
+
+	;
+	push 0x55
+	push 0x8140
+	push 0xB000
+	call _putInMemory
+
+	pop ds
+	pop ds
+	pop ds
+
+	push 0x07
+	push 0x8140
+	push 0xB000
+	call _putInMemory
+
+	pop ds
+	pop ds
+	pop ds
+
+	;
+
+	mov ah, 0x02	;Set cursor position interrupt parameter
+	mov bh, 0x00	;page number: graphic mode
+	mov dh, 0x03	;row
+	mov dl, 0x01	;column
+	int 0x10
+
+
+	mov al, 0x55	;Character to write (should be the parameter, hardcoding Q for now)
+	mov ah, 0x0E	;Teletype output interrupt parameter
+	mov bl, 0x22	;Foreground Color
+	mov bh, 0x00	;page number: graphic mode		
+	int 0x10
 	pop ds
 	pop bp
 	ret
@@ -77,3 +122,41 @@ _interrupt21ServiceRoutine:
 ;	pop dx
 
 ;	iret
+
+; Load a program from sector 11 into segment 0x20000
+;_loadProgram:
+;	mov ax, #0x2000
+;	mov ds, ax
+;	mov ss, ax
+;	mov es, ax
+;;let's have the stack start at 0x2000:fff0
+;	mov ax, #0xfff0
+;	mov sp, ax
+;	mov bp, ax
+;; Read the program from the floppy
+;	mov
+;	cl, #12
+;;cl holds sector number
+;	mov
+;	dh, #0
+;;dh holds head number - 0
+;	mov
+;	ch, #0
+;;ch holds track number - 0
+;	mov
+;	ah, #2
+;;absolute disk read
+;	mov
+;	al, #1
+;;read 1 sector
+;	mov
+;	dl, #0
+;;read from floppy disk A
+;	mov
+;	bx, #0
+;;read into offset 0 (in the segment)
+;	int
+;	#0x13
+;;call BIOS disk read function
+;; Switch to program
+;	jmp #0x2000:#0

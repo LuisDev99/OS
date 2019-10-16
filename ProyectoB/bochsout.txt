@@ -32,37 +32,37 @@
 00000000000i[     ]   SB16 support: yes
 00000000000i[     ]   USB support: yes
 00000000000i[     ]   VGA extension support: vbe cirrus
-00000000000i[MEM0 ] allocated memory at 0x7f297705c010. after alignment, vector=0x7f297705d000
+00000000000i[MEM0 ] allocated memory at 0x7f6c39159010. after alignment, vector=0x7f6c3915a000
 00000000000i[MEM0 ] 32.00MB
 00000000000i[MEM0 ] mem block size = 0x00100000, blocks=32
 00000000000i[MEM0 ] rom at 0xfffe0000/131072 ('/usr/share/bochs/BIOS-bochs-latest')
-00000000000i[     ] lt_dlhandle is 0x55ae446d78d0
+00000000000i[     ] lt_dlhandle is 0x561fb9bdb6a0
 00000000000i[PLGIN] loaded plugin libbx_hdimage.so
-00000000000i[     ] lt_dlhandle is 0x55ae4489c450
+00000000000i[     ] lt_dlhandle is 0x561fb9da0220
 00000000000i[PLGIN] loaded plugin libbx_pci.so
-00000000000i[     ] lt_dlhandle is 0x55ae4489cfe0
+00000000000i[     ] lt_dlhandle is 0x561fb9da0db0
 00000000000i[PLGIN] loaded plugin libbx_pci2isa.so
-00000000000i[     ] lt_dlhandle is 0x55ae4489d9f0
+00000000000i[     ] lt_dlhandle is 0x561fb9da17c0
 00000000000i[PLGIN] loaded plugin libbx_acpi.so
-00000000000i[     ] lt_dlhandle is 0x55ae4489e400
+00000000000i[     ] lt_dlhandle is 0x561fb9da21d0
 00000000000i[PLGIN] loaded plugin libbx_cmos.so
-00000000000i[     ] lt_dlhandle is 0x55ae4489ed40
+00000000000i[     ] lt_dlhandle is 0x561fb9da2b10
 00000000000i[PLGIN] loaded plugin libbx_dma.so
-00000000000i[     ] lt_dlhandle is 0x55ae4489f7e0
+00000000000i[     ] lt_dlhandle is 0x561fb9da35b0
 00000000000i[PLGIN] loaded plugin libbx_pic.so
-00000000000i[     ] lt_dlhandle is 0x55ae448a0090
+00000000000i[     ] lt_dlhandle is 0x561fb9da3e60
 00000000000i[PLGIN] loaded plugin libbx_pit.so
-00000000000i[     ] lt_dlhandle is 0x55ae448a0ad0
+00000000000i[     ] lt_dlhandle is 0x561fb9da48a0
 00000000000i[PLGIN] loaded plugin libbx_floppy.so
-00000000000i[     ] lt_dlhandle is 0x55ae448a16d0
+00000000000i[     ] lt_dlhandle is 0x561fb9da54a0
 00000000000i[PLGIN] loaded plugin libbx_vga.so
-00000000000i[     ] lt_dlhandle is 0x55ae448a1f40
+00000000000i[     ] lt_dlhandle is 0x561fb9da5d10
 00000000000i[PLGIN] loaded plugin libbx_ioapic.so
-00000000000i[     ] lt_dlhandle is 0x55ae448a2790
+00000000000i[     ] lt_dlhandle is 0x561fb9da6560
 00000000000i[PLGIN] loaded plugin libbx_keyboard.so
-00000000000i[     ] lt_dlhandle is 0x55ae448a3120
+00000000000i[     ] lt_dlhandle is 0x561fb9da6ef0
 00000000000i[PLGIN] loaded plugin libbx_harddrv.so
-00000000000i[     ] lt_dlhandle is 0x55ae448b5250
+00000000000i[     ] lt_dlhandle is 0x561fb9db9020
 00000000000i[PLGIN] loaded plugin libbx_pci_ide.so
 00000000000i[PLGIN] init_dev of 'pci' plugin device by virtual method
 00000000000i[PCI  ] 440FX Host bridge present at device 0, function 0
@@ -70,7 +70,7 @@
 00000000000i[PCI  ] PIIX3 PCI-to-ISA bridge present at device 1, function 0
 00000000000i[PLGIN] init_dev of 'cmos' plugin device by virtual method
 00000000000i[CMOS ] Using local time for initial clock
-00000000000i[CMOS ] Setting initial clock to: Sat Oct 12 18:25:35 2019 (time0=1570926335)
+00000000000i[CMOS ] Setting initial clock to: Mon Oct 14 10:01:24 2019 (time0=1571068884)
 00000000000i[PLGIN] init_dev of 'dma' plugin device by virtual method
 00000000000i[DMA  ] channel 4 used by cascade
 00000000000i[PLGIN] init_dev of 'pic' plugin device by virtual method
@@ -214,26 +214,59 @@
 00001652017i[VBIOS] VBE Bios $Id: vbe.c,v 1.64 2011/07/19 18:25:05 vruppert Exp $
 00001999988i[XGUI ] charmap update. Font Height is 16
 00047635242i[BIOS ] Booting from 0000:7c00
-00507564689i[     ] Ctrl-C detected in signal handler.
-00507564690i[XGUI ] Mouse capture off
-00507564690i[     ] dbg: Quit
-00507564690i[CPU0 ] CPU is in real mode (active)
-00507564690i[CPU0 ] CS.mode = 16 bit
-00507564690i[CPU0 ] SS.mode = 16 bit
-00507564690i[CPU0 ] EFER   = 0x00000000
-00507564690i[CPU0 ] | EAX=00000055  EBX=0000026a  ECX=00090007  EDX=00000000
-00507564690i[CPU0 ] | ESP=0000fffe  EBP=0000fff0  ESI=000e0001  EDI=0000ffab
-00507564690i[CPU0 ] | IOPL=0 id vip vif ac vm rf nt of df if tf sf zf af PF cf
-00507564690i[CPU0 ] | SEG sltr(index|ti|rpl)     base    limit G D
-00507564690i[CPU0 ] |  CS:f000( 0004| 0|  0) 000f0000 0000ffff 0 0
-00507564690i[CPU0 ] |  DS:1000( 0005| 0|  0) 00010000 0000ffff 0 0
-00507564690i[CPU0 ] |  SS:1000( 0005| 0|  0) 00010000 0000ffff 0 0
-00507564690i[CPU0 ] |  ES:57e5( 0005| 0|  0) 00057e50 0000ffff 0 0
-00507564690i[CPU0 ] |  FS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
-00507564690i[CPU0 ] |  GS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
-00507564690i[CPU0 ] | EIP=0000ff53 (0000fd7b)
-00507564690i[CPU0 ] | CR0=0x60000010 CR2=0x00000000
-00507564690i[CPU0 ] | CR3=0x00000000 CR4=0x00000000
-00507564690i[CMOS ] Last time is 1570926368 (Sat Oct 12 18:26:08 2019)
-00507564690i[XGUI ] Exit
-00507564690i[CTRL ] quit_sim called with exit code 0
+00049999508i[XGUI ] charmap update. Font Height is 16
+00050999498i[XGUI ] charmap update. Font Height is 16
+00051999488i[XGUI ] charmap update. Font Height is 16
+00052999478i[XGUI ] charmap update. Font Height is 16
+00054999458i[XGUI ] charmap update. Font Height is 16
+00055999448i[XGUI ] charmap update. Font Height is 16
+00056999438i[XGUI ] charmap update. Font Height is 16
+00057999428i[XGUI ] charmap update. Font Height is 16
+00058999418i[XGUI ] charmap update. Font Height is 16
+00059999408i[XGUI ] charmap update. Font Height is 16
+00060999398i[XGUI ] charmap update. Font Height is 16
+00061999388i[XGUI ] charmap update. Font Height is 16
+00063999368i[XGUI ] charmap update. Font Height is 16
+00064999358i[XGUI ] charmap update. Font Height is 16
+00065999348i[XGUI ] charmap update. Font Height is 16
+00066999338i[XGUI ] charmap update. Font Height is 16
+00067999328i[XGUI ] charmap update. Font Height is 16
+00068999318i[XGUI ] charmap update. Font Height is 16
+00069999308i[XGUI ] charmap update. Font Height is 16
+00070999298i[XGUI ] charmap update. Font Height is 16
+00072999278i[XGUI ] charmap update. Font Height is 16
+00073999268i[XGUI ] charmap update. Font Height is 16
+00074999258i[XGUI ] charmap update. Font Height is 16
+00075999248i[XGUI ] charmap update. Font Height is 16
+00076999238i[XGUI ] charmap update. Font Height is 16
+00077999228i[XGUI ] charmap update. Font Height is 16
+00078999218i[XGUI ] charmap update. Font Height is 16
+00079999208i[XGUI ] charmap update. Font Height is 16
+00081999188i[XGUI ] charmap update. Font Height is 16
+00082999178i[XGUI ] charmap update. Font Height is 16
+00083999168i[XGUI ] charmap update. Font Height is 16
+00084033063i[CPU0 ] LOCK prefix unallowed (op1=0x100, modrm=0x01)
+00084033082i[CPU0 ] LOCK prefix unallowed (op1=0x100, modrm=0x01)
+00084033091i[CPU0 ] LOCK prefix unallowed (op1=0x100, modrm=0x01)
+00084999158i[XGUI ] charmap update. Font Height is 16
+00092880000p[XGUI ] >>PANIC<< POWER button turned off.
+00092880000i[CPU0 ] CPU is in real mode (active)
+00092880000i[CPU0 ] CS.mode = 16 bit
+00092880000i[CPU0 ] SS.mode = 16 bit
+00092880000i[CPU0 ] EFER   = 0x00000000
+00092880000i[CPU0 ] | EAX=000069de  EBX=00000113  ECX=00090069  EDX=0000f0ff
+00092880000i[CPU0 ] | ESP=0000fffc  EBP=0000fff0  ESI=000e0002  EDI=0000ffac
+00092880000i[CPU0 ] | IOPL=0 id vip vif ac vm rf nt of df if tf sf zf af PF cf
+00092880000i[CPU0 ] | SEG sltr(index|ti|rpl)     base    limit G D
+00092880000i[CPU0 ] |  CS:f000( 0004| 0|  0) 000f0000 0000ffff 0 0
+00092880000i[CPU0 ] |  DS:1000( 0005| 0|  0) 00010000 0000ffff 0 0
+00092880000i[CPU0 ] |  SS:1000( 0005| 0|  0) 00010000 0000ffff 0 0
+00092880000i[CPU0 ] |  ES:1000( 0005| 0|  0) 00010000 0000ffff 0 0
+00092880000i[CPU0 ] |  FS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
+00092880000i[CPU0 ] |  GS:0000( 0005| 0|  0) 00000000 0000ffff 0 0
+00092880000i[CPU0 ] | EIP=0000ff53 (0000ff7c)
+00092880000i[CPU0 ] | CR0=0x60000010 CR2=0x00000000
+00092880000i[CPU0 ] | CR3=0x00000000 CR4=0x00000000
+00092880000i[CMOS ] Last time is 1571068890 (Mon Oct 14 10:01:30 2019)
+00092880000i[XGUI ] Exit
+00092880000i[CTRL ] quit_sim called with exit code 1

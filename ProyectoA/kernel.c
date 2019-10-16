@@ -24,9 +24,9 @@ int main()
 
     //32 -> cantidad inicial de asteriscos a la izq
 
-    char array[25][25];
-    int i;
-    char str;
+    // char array[25][25];
+    // int i;
+    // char str;
 
     //array[1] = "              UNIVERSIDAD TECNOLOGICA CENTROAMERICANA (UNITEC)                 ";
     //array[2] = "                          21711234 - Luis Gerardo Ponce Rodriguez 2019         ";
@@ -53,31 +53,31 @@ int main()
     //array[23] = "******************************** Bonjou mond lan !! ***************************";
     //array[24] = "******************************** Sannu duniya !! ******************************";
 
-    printLine(0x8000, "                          SISTEMAS OPERATIVOS 1                                ");
-    printLine(0x80A0, "                      21711234 - Luis Gerardo Ponce Rodriguez 2019             ");
-    printLine(0x8140, "                          MI PRIMER SISTEMA OPERATIVO                          ");
-    printLine(0x81E0, "-------------------------------------------------------------------------------");
-    printLine(0x8280, "******************************** Saluta mondu !! ******************************");
-    printLine(0x8320, "******************************** Pozdrav svijetu !! ***************************");
-    printLine(0x83C0, "******************************** Ahoj svet !! *********************************");
-    printLine(0x8460, "******************************** Hej verden !! ********************************");
-    printLine(0x8500, "******************************** Hallo wereld !! ******************************");
-    printLine(0x85A0, "******************************** Hola Mundo !! ********************************");
-    printLine(0x8640, "******************************** Hello World !! *******************************");
-    printLine(0x86E0, "******************************** Hola Mon !! **********************************");
-    printLine(0x8780, "******************************** Kumusta kalibutan !! *************************");
-    printLine(0x8820, "******************************** Moni mdziko !! *******************************");
-    printLine(0x88C0, "******************************** Saluton mondo !! *****************************");
-    printLine(0x8960, "******************************** Tere maailm !! *******************************");
-    printLine(0x8A00, "******************************** Kumusta mundo !! *****************************");
-    printLine(0x8AA0, "******************************** Hei maailma !! *******************************");
-    printLine(0x8B40, "******************************** Salut monde !! *******************************");
-    printLine(0x8BE0, "******************************** Hallo wrald !! *******************************");
-    printLine(0x8C80, "******************************** Ola mundo !! *********************************");
-    printLine(0x8D20, "******************************** Hallo Welt !! ********************************");
-    printLine(0x8DC0, "******************************** Bonjou mond lan !! ***************************");
-    printLine(0x8E60, "******************************** Sannu duniya !! ******************************");
-    printLine(0x8F00, "                    UNIVERSIDAD TECNOLOGICA CENTROAMERICANA (UNITEC)           ");
+    printLine(0x8000, "                              SISTEMAS OPERATIVOS 1                             ");
+    printLine(0x80A0, "                      21711234 - Luis Gerardo Ponce Rodriguez 2019              ");
+    printLine(0x8140, "                          MI PRIMER SISTEMA OPERATIVO                           ");
+    printLine(0x81E0, "                    UNIVERSIDAD TECNOLOGICA CENTROAMERICANA UNITEC              ");
+    printLine(0x8280, "-------------------------------------------------------------------------------*");
+    printLine(0x8320, "******************************** Saluta mondu !! *******************************");
+    printLine(0x83C0, "******************************** Pozdrav svijetu !! ****************************");
+    printLine(0x8460, "******************************** Ahoj svet !! **********************************");
+    printLine(0x8500, "******************************** Hej verden !! *********************************");
+    printLine(0x85A0, "******************************** Hallo wereld !! *******************************");
+    printLine(0x8640, "******************************** Hola Mundo !! *********************************");
+    printLine(0x86E0, "******************************** Hello World !! ********************************");
+    printLine(0x8780, "******************************** Hola Mon !! ***********************************");
+    printLine(0x8820, "******************************** Kumusta kalibutan !! **************************");
+    printLine(0x88C0, "******************************** Moni mdziko !! ********************************");
+    printLine(0x8960, "******************************** Saluton mondo !! ******************************");
+    printLine(0x8A00, "******************************** Tere maailm !! ********************************");
+    printLine(0x8AA0, "******************************** Kumusta mundo !! ******************************");
+    printLine(0x8B40, "******************************** Hei maailma !! ********************************");
+    printLine(0x8BE0, "******************************** Salut monde !! ********************************");
+    printLine(0x8C80, "******************************** Hallo wrald !! ********************************");
+    printLine(0x8D20, "******************************** Ola mundo !! **********************************");
+    printLine(0x8DC0, "******************************** Hallo Welt !! *********************************");
+    printLine(0x8E60, "******************************** Bonjou mond lan !! ****************************");
+    printLine(0x8F00, "******************************** Sannu duniya !! *******************************");
 
     return 0;
 }
@@ -96,14 +96,18 @@ void printLine(int address, char msg[])
 {
     int i, length;
     char charity;
+    static int color = 0x7;
 
     length = getStrLength(msg);
 
-    for (i = 0; i < length; i++)
+    for (i = 0; i < 80 && i < length; i++)
     {
         charity = msg[i];
         putInMemory(0xB000, address, charity);
-        putInMemory(0xB000, address + 1, 0x7);
+        putInMemory(0xB000, address + 1, color);
         address = address + 2;
     }
+    color += 6;
 }
+
+//Command to execute bochs: $ echo c | bochs -f ./bochsrc-2.6.9.bxrc
