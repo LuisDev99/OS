@@ -1,0 +1,2 @@
+If this message prints out, then your readSector function is working correctly! \0
+Hola Mundo
