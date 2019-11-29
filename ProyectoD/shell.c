@@ -16,7 +16,7 @@ typedef struct
     unsigned int size; /* in sectors */
 } File;
 
-/* Defining the api's functions to get intellisense in VsCode */
+/* Declaring the api's functions to get intellisense in VsCode */
 void syscall_readSector(char *buffer, int sector);
 void syscall_printString(char *str);
 void syscall_readString(char *str);
@@ -65,7 +65,7 @@ int main()
 
     } while (!commandExists);
 
-    //End the process, dont, the program should do it
+    //End the process. Dont, the program should do it
     //syscall_terminate();
 
     return 0;
@@ -73,6 +73,8 @@ int main()
 
 char *int_toString(int integer)
 {
+    /* There's really no other way on doing this */
+
     switch (integer)
     {
 
@@ -127,6 +129,57 @@ char *int_toString(int integer)
     case 16:
         return "16";
 
+    case 17:
+        return "17";
+
+    case 18:
+        return "18";
+
+    case 19:
+        return "19";
+
+    case 20:
+        return "20";
+
+    case 21:
+        return "21";
+
+    case 22:
+        return "22";
+
+    case 23:
+        return "23";
+
+    case 24:
+        return "24";
+
+    case 25:
+        return "25";
+
+    case 26:
+        return "26";
+
+    case 27:
+        return "27";
+
+    case 28:
+        return "28";
+
+    case 29:
+        return "29";
+
+    case 30:
+        return "30";
+
+    case 31:
+        return "31";
+
+    case 32:
+        return "32";
+
+    case 33:
+        return "33";
+
     default:
         return "WTF";
     }
@@ -137,8 +190,8 @@ void showDirHandler()
     File files[16]; /* The amount of files capable to be in the directory */
 
     char directory[512];
-    char *directory_ptr;
 
+    char *directory_ptr;
     char *fileSector_ptr;
 
     int bytesRead = 0;
@@ -155,6 +208,8 @@ void showDirHandler()
         files[iterator].size = 0;
     }
 
+    iterator = 0;
+
     /* Read the directory from disk */
     syscall_readSector(directory, 2);
 
@@ -163,17 +218,18 @@ void showDirHandler()
     for (bytesRead = 0; bytesRead < 512; bytesRead += 32, file_index++)
     {
         /* if the first byte of the current file entry is 0x00, then continue */
-        if (directory_ptr[bytesRead] == 0x00)
-        {
-            directory_ptr += 32;
-            continue;
-        }
 
         /* Get and save the file name */
         for (iterator = 0; iterator < 6; iterator++)
         {
-            if (directory_ptr[iterator] == 0x00 || directory_ptr[iterator] == '\r')
+            if (directory_ptr[iterator] == 0x00)
             {
+                if (iterator != 0) /* If the file had a name less than six bytes, then take out the default value that the file has */
+                {
+                    for (; iterator < 6; iterator++)
+                        files[file_index].name[iterator] = ' ';
+                }
+
                 break;
             }
 
@@ -411,6 +467,8 @@ void executeCommand(char *userCommand)
     if (isCommandEqual(userCommand, commands[4].command, commands[4].size)) /* Copy file */
     {
         fileName = (userCommand + commands[4].size) + 1;
+
+        /*fileName holds the arguments, so, split those arguments */
         readCommandArguments(fileName, arg_1, arg_2);
 
         /* print stuff */
