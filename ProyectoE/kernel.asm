@@ -2,6 +2,12 @@
 ;Michael Black, 2007
 
 ;kernel.asm contains assembly functions that you can use in your kernel
+;Consideraciones para este proyecto:
+;	- Poner el numeral en las constantes
+;	- Balancear bien la pila
+;	- Exportar bien las funciones
+;	- Fijarse bien en los outputs de los compilers y assemblers
+
 
 	.global _putInMemory
 	.global _interrupt
@@ -15,6 +21,16 @@
 	.global _initializeProgram
 	.global _setKernelDataSegment
 	.global _restoreDataSegment
+        .global _loadProgram    ;here
+        .global _printChar
+	.global _readChar
+	.global _readSector
+        .global _compareFileNameStrings
+	.global _loadFileIntoBuffer
+	.global _binToDec
+	.global _power
+	.global _clearScreen
+	.global _writeSector
 
 ;void putInMemory (int segment, int address, char character)
 _putInMemory:
@@ -28,6 +44,126 @@ _putInMemory:
 	mov [si],cl
 	pop ds
 	pop bp
+	ret
+
+_clearScreen:
+	mov ax, #0x0003
+	int #0x10
+	ret
+
+;void printChar(char ch)
+_printChar:
+	push bp
+	mov bp, sp
+	mov al, [bp+4]
+	mov ah, #0x0e
+	int #0x10
+	leave
+	ret
+
+;char readChar();
+_readChar:
+	;set interrupt parameter
+	mov ah, #0x00
+	int #0x16
+	;set the return register to whatever the interrupt returned
+	mov ah, al
+	ret
+
+;readSector(char* buffer, int sector)
+_readSector:
+	push bp
+	mov bp, sp
+
+	;relative_sector = sector MOD 18
+	mov ax, [bp+6]
+	mov bx, #0x12
+	mov dx, #0x00
+	div bx
+	mov cl, dl
+	add dl, #1	; relative_sector + 1
+	;Save the result in the stack
+	mov [bp-4], dl
+
+	;track number = (sector / 36)
+	mov ax, [bp+6]
+	mov bx, #0x24
+	mov dx, #0x00
+	div bx
+	mov ch, al
+	;Save the result in the stack
+	mov [bp-6], al
+
+	;head = (sector / 18) MOD 2
+	mov ax, [bp+6]
+	mov bx, #0x12
+	mov dx, #0x00
+	div bx		;ax = sector / 18
+	mov bx, #0x02
+	mov dx, #0x00	
+	div bx     ;ax = ax % 2
+	mov dh, dl
+	;Save the result in the stack
+	mov [bp-8], dl
+
+	;setting up all other registers
+	mov cl, [bp-4]	;Read result from the stack
+	mov ch, [bp-6]	;Read result from the stack
+	mov dh, [bp-8]	;Read result from the stack
+	mov ah, #0x02
+	mov al, #0x01
+	mov bx, [bp+4]
+	mov dl, #0x00
+	int #0x13
+	leave
+	ret
+
+;writeSector(char* buffer, int sector)
+_writeSector:
+	push bp
+	mov bp, sp
+
+	;relative_sector = sector MOD 18
+	mov ax, [bp+6]
+	mov bx, #0x12
+	mov dx, #0x00
+	div bx
+	mov cl, dl
+	add dl, #1	; relative_sector + 1
+	;Save the result in the stack
+	mov [bp-4], dl
+
+	;track number = (sector / 36)
+	mov ax, [bp+6]
+	mov bx, #0x24
+	mov dx, #0x00
+	div bx
+	mov ch, al
+	;Save the result in the stack
+	mov [bp-6], al
+
+	;head = (sector / 18) MOD 2
+	mov ax, [bp+6]
+	mov bx, #0x12
+	mov dx, #0x00
+	div bx		;ax = sector / 18
+	mov bx, #0x02
+	mov dx, #0x00	
+	div bx     ;ax = ax % 2
+	mov dh, dl
+	;Save the result in the stack
+	mov [bp-8], dl
+
+	;setting up all other registers
+	mov cl, [bp-4]	;Read result from the stack
+	mov ch, [bp-6]	;Read result from the stack
+	mov dh, [bp-8]	;Read result from the stack
+	mov ah, #0x03
+	mov al, #0x01
+	mov bx, [bp+4]
+	mov dl, #0x00
+	int #0x13
+	leave
 	ret
 
 ;int interrupt (int number, int AX, int BX, int CX, int DX)
@@ -276,9 +412,6 @@ _restoreDataSegment:
         push bx
         ret
 
-
-
-
 ;printhex is used for debugging only
 ;it prints out the contents of ax in hexadecimal
 _printhex:
@@ -330,4 +463,36 @@ ph4:    add al,#0x30
         pop ax
         pop bx
         ret
+
+; Load a program from sector 11 into segment 0x20000
+_loadProgram:
+	mov ax, #0x2000
+	mov ds, ax
+	mov ss, ax
+	mov es, ax
+;let's have the stack start at 0x2000:fff0
+	mov ax, #0xfff0
+	mov sp, ax
+	mov bp, ax
+; Read the program from the floppy
+	mov cl, #12
+;cl holds sector number
+	mov dh, #0
+;dh holds head number - 0
+	mov ch, #0
+;ch holds track number - 0
+	mov ah, #2
+;absolute disk read
+	mov al, #1
+;read 1 sector
+	mov dl, #0
+;read from floppy disk A
+	mov bx, #0
+;read into offset 0 (in the segment)
+	int #0x13
+;call BIOS disk read function
+; Switch to program
+	jmp #0x2000:#0
+
+
 
