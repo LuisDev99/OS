@@ -1,5 +1,12 @@
 #define TRUE 1
 #define FALSE 0
+#define PROCESS_TABLE_LENGTH 8
+
+typedef struct
+{
+    char isActive;
+    int stackPointer;
+} Process;
 
 void putInMemory(int segment, int address, char character);
 void printChar(char ch);
@@ -13,7 +20,7 @@ void handleInterrupt21(int AX, int BX, int CX, int DX);
 void loadFileIntoBuffer(char *fileSectorPointers, char *buffer);
 int binToDec(char *fileSectorPointer);
 int power(int base, int exp);
-void executeProgram(char *name, int segment);
+void executeProgram(char *name);
 void moveByteToMemory(char byte, int segment);
 void launchProgram(int segment);
 void terminate();
@@ -31,11 +38,18 @@ void makeTimerInterrupt();
 void handleTimerInterrupt(int segment, int sp);
 void returnFromTimer(int segment, int sp);
 
-//char line[80];
-//char buffer[13312];
+void initializeProcessTable();
+unsigned char getFreeEntry_index();
+int getProcess_Segment(unsigned char process_index);
+
+Process processTable[PROCESS_TABLE_LENGTH];
+int currentProcess;
+
 int main()
 {
 
+    //char line[80];
+    //char buffer[13312];
     //readFile("test.c", buffer);
     //printString(buffer);
 
@@ -79,9 +93,11 @@ int main()
 
     // char buffer[1000];
 
+    initializeProcessTable();
+
     makeTimerInterrupt();
     makeInterrupt21();
-    executeProgram("shell", 0x2000);
+    executeProgram("shell");
 
     // deleteFile("messag");
     // deleteFile("test.c");
@@ -98,9 +114,47 @@ int main()
     return 0;
 }
 
+int getProcess_Segment(unsigned char process_index)
+{
+    int segment = process_index + 2;
+    segment = segment * 0x1000;
+
+    return segment;
+}
+
+unsigned char getFreeEntry_index()
+{
+    unsigned char i = 0;
+
+    for (i = 0; i < PROCESS_TABLE_LENGTH; i++)
+    {
+        if (processTable[i].isActive == FALSE)
+            break;
+    }
+
+    return i;
+}
+
+void initializeProcessTable()
+{
+    unsigned char i = 0;
+
+    /* Go through the table and set active to 0 on all entries, 
+       and set the stack pointer values to 0xff00 */
+
+    for (i = 0; i < PROCESS_TABLE_LENGTH; i++)
+    {
+        processTable[i].isActive = FALSE;
+        processTable[i].stackPointer = 0xff00;
+    }
+
+    /* Set currentProcess to 0 too. */
+    currentProcess = 0;
+}
+
 void handleTimerInterrupt(int segment, int sp)
 {
-    printString("Tic");
+    //printString("Tic");
     returnFromTimer(segment, sp);
 }
 
@@ -277,31 +331,43 @@ void deleteFile(char *name)
 void terminate()
 {
     /*Also in your kernel, you should change terminate to no longer hang up. Instead it should reload and execute the shell at segment*/
-    executeProgram("shell", 0x2000);
+    executeProgram("shell");
 }
 
-void executeProgram(char *name, int segment)
+void executeProgram(char *name)
 {
     char buffer[13312];
     int i = 0;
     int j = 0;
+    unsigned char freeProcess_index = 0;
+    int process_segment = 0x2000;
 
     /* 1. Call readFile to load the file into a buffer. */
     readFile(name, buffer);
 
     /* Check to see if the file exists */
-
     if (buffer[0] == 'F' && buffer[1] == 'I' && buffer[2] == 'L' && buffer[3] == 'E' && buffer[4] == ' ' && buffer[5] == 'N' && buffer[6] == 'O' && buffer[7] == 'T')
         return;
+
+    /* Project E Part */
+
+    /* In executeProgram, search through the process table for a free entry.
+       Set that entry's active number to 1, and call launchProgram 
+       on that entry's segment. */
+
+    freeProcess_index = getFreeEntry_index();
+    processTable[freeProcess_index].isActive = TRUE;
+    currentProcess = freeProcess_index;
+    process_segment = getProcess_Segment(freeProcess_index);
 
     /*2. In a loop, transfer the file from the buffer into the bottom (0000) of memory at the segment in the parameter*/
     for (i = 0; i < 13312; i++)
     {
-        putInMemory(segment, i, buffer[i]);
+        putInMemory(process_segment, i, buffer[i]);
     }
 
     /*3. Implement the function void launchProgram(int segment) in assembly*/
-    launchProgram(segment);
+    launchProgram(process_segment);
 }
 
 int power(int base, int exp)
