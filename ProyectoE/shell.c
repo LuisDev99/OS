@@ -21,12 +21,13 @@ void syscall_readSector(char *buffer, int sector);
 void syscall_printString(char *str);
 void syscall_readString(char *str);
 void syscall_readFile(char *fileName, char *buffer);
-void syscall_executeProgram(char *name, int segment);
+void syscall_executeProgram(char *name);
 void syscall_terminate();
 void syscall_clearScreen();
 void syscall_deleteFile(char *name);
 void syscall_writeSector(char *buffer, int sector);
 void syscall_writeFile(char *name, char *buffer, int numberOfSectors);
+void enableInterrupts();
 
 int checkCommandExistence(char *command);
 int isCommandEqual(char *userCommand, char *command, int commandSize);
@@ -43,8 +44,12 @@ void showDirHandler();
 
 int main()
 {
+    /* void enableInterrupts(). You should call that function 
+       at the very beginning of shell and all other user programs. */
     int commandExists = FALSE;
     char command[200];
+
+    enableInterrupts();
 
     do
     {
@@ -57,6 +62,7 @@ int main()
         if (commandExists == TRUE)
         {
             executeCommand(command);
+            syscall_printString("\nExecuted\n");
             syscall_printString("\n\rExecution succesfull\n\r");
             break;
         }
@@ -444,7 +450,7 @@ void executeCommand(char *userCommand)
     {
         fileName = (userCommand + commands[2].size) + 1; /* To get the file name, add the userCommand pointer the size of the command plus 1 to omit the whitespace */
 
-        syscall_executeProgram(fileName, 0x3000); /* Executing the program in segment 0x3000 (instead of 0x2000) prevents the whole OS from crashing after executing the program */
+        syscall_executeProgram(fileName); /* Executing the program in segment 0x3000 (instead of 0x2000) prevents the whole OS from crashing after executing the program */
 
         /* Sanitizing the stack */
         clearBuffer(buffer, BUFFER_CAPACITY);

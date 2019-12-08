@@ -60,14 +60,15 @@ if [ $? -eq 0 ]; then
             cp shell sfs_root/
             cp os-api.asm sfs_root/
             cp ok.ct sfs_root/
+            cp phello sfs_root/
 
             printf "\nDONE WITH SETUP\n"
 
             echo "Unmounting the file system (sfs_root)..."
             fusermount -u sfs_root
 
-            echo "Copying the test program into the sector 11 of the floppy..."
-            dd if=syscall-test of=floppya.img bs=512 count=1 seek=11 conv=notrunc
+            #echo "Copying the test program into the sector 11 of the floppy..."
+            #dd if=syscall-test of=floppya.img bs=512 count=1 seek=11 conv=notrunc
 
             echo "Executing bochs..."
             echo c | bochs -f ./bochsrc-2.6.9.bxrc

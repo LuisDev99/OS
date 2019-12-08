@@ -15,7 +15,8 @@
     .global _syscall_deleteFile
     .global _syscall_writeSector
     .global _syscall_writeFile
-    
+    .global _interrupt
+	.global _enableInterrupts
 
 ;void syscall_readSector(char *buffer, int sector)
 _syscall_readSector:
@@ -67,7 +68,6 @@ _syscall_executeProgram:
     mov bp, sp
     mov ax, #4
     mov bx, [bp+4] ;name
-    mov cx, [bp+6] ;segment
     int #0x21
     leave
     ret
@@ -122,4 +122,32 @@ _syscall_writeFile:
     int #0x21
     leave
     ret
+
+;int interrupt (int number, int AX, int BX, int CX, int DX)
+_interrupt:
+	push bp
+	mov bp,sp
+	mov ax,[bp+4]	;get the interrupt number in AL
+	push ds		;use self-modifying code to call the right interrupt
+	mov bx,cs
+	mov ds,bx
+	mov si,#intr
+	mov [si+1],al	;change the 00 below to the contents of AL
+	pop ds
+	mov ax,[bp+6]	;get the other parameters AX, BX, CX, and DX
+	mov bx,[bp+8]
+	mov cx,[bp+10]
+	mov dx,[bp+12]
+
+intr:	int #0x00	;call the interrupt (00 will be changed above)
+
+	mov ah,#0	;we only want AL returned
+	pop bp
+	ret
+
+;void enableInterrupts()
+;call at the beginning of programs.  allows timer preemption
+_enableInterrupts:
+	sti
+	ret
 

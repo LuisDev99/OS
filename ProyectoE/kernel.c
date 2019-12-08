@@ -39,74 +39,22 @@ void handleTimerInterrupt(int segment, int sp);
 void returnFromTimer(int segment, int sp);
 
 void initializeProcessTable();
-unsigned char getFreeEntry_index();
-int getProcess_Segment(unsigned char process_index);
+int getFreeEntry_index();
+int getProcess_Segment(int process_index);
+void initializeProgram(int segment);
+void setKernelDataSegment();
+void restoreDataSegment();
 
 Process processTable[PROCESS_TABLE_LENGTH];
-int currentProcess;
+int currentProcess = 0;
 
 int main()
 {
 
-    //char line[80];
-    //char buffer[13312];
-    //readFile("test.c", buffer);
-    //printString(buffer);
-
-    //asm("push 0x41 \n\t push 0x8140 \n\t 0xB000 \n\t call _putInMemory ");
-    //asm("push 0x7  \n\t push 0x8141 \n\t 0xB000 \n\t call _putInMemory ");
-    //asm("call _makeInterrupt21 \n\t call _loadProgram");
-
-    //makeInterrupt21();
-    //loadProgram();
-
-    //makeInterrupt21();
-    //executeProgram("syscal", 0x2000);
-
-    //printString("We out here boys");
-    //clearScreen();
-    //printString("We got deleted boys");
-
-    //makeInterrupt21();
-    //executeProgram("shell", 0x2000);
-
-    // int numberOfSectors = 1;
-    // char *buffer = "Hello World\0";
-    // char *name = "LYou\0";
-    // char hey[14];
-
-    // clearScreen();
-    // printString("Going to write a file\n\r");
-    // readString(hey);
-
-    // writeFile(name, buffer, numberOfSectors);
-
-    // printString("\n\rI did it");
-
-    // writeFile("name1234", buffer, numberOfSectors);
-
-    // printString("\n\rI did it again");
-
-    //TODO: Fix execute program (whenever syscal is executed, the program crashes)
-
-    //terminate();
-
-    // char buffer[1000];
-
     initializeProcessTable();
-
-    makeTimerInterrupt();
     makeInterrupt21();
+    makeTimerInterrupt();
     executeProgram("shell");
-
-    // deleteFile("messag");
-    // deleteFile("test.c");
-    // readFile("messag", buffer);
-    // printString(buffer);
-    // readFile("test.c", buffer);
-    // printString(buffer);
-    // printString("\n\rHey");
-    // readString(buffer);
 
     while (1)
     {
@@ -114,22 +62,24 @@ int main()
     return 0;
 }
 
-int getProcess_Segment(unsigned char process_index)
+int getProcess_Segment(int process_index)
 {
-    int segment = process_index + 2;
-    segment = segment * 0x1000;
-
-    return segment;
+    return (process_index + 2) * 0x1000;
 }
 
-unsigned char getFreeEntry_index()
+int getFreeEntry_index()
 {
-    unsigned char i = 0;
+    int i = 0;
 
     for (i = 0; i < PROCESS_TABLE_LENGTH; i++)
     {
+        setKernelDataSegment();
         if (processTable[i].isActive == FALSE)
-            break;
+        {
+            restoreDataSegment();
+            return i;
+        }
+        restoreDataSegment();
     }
 
     return i;
@@ -137,26 +87,147 @@ unsigned char getFreeEntry_index()
 
 void initializeProcessTable()
 {
-    unsigned char i = 0;
+    int i = 0;
 
     /* Go through the table and set active to 0 on all entries, 
        and set the stack pointer values to 0xff00 */
 
+    /* You must call setKernelDataSegment before accessing the process table */
+    //setKernelDataSegment();
+
     for (i = 0; i < PROCESS_TABLE_LENGTH; i++)
     {
+        setKernelDataSegment();
         processTable[i].isActive = FALSE;
         processTable[i].stackPointer = 0xff00;
+        restoreDataSegment();
     }
 
     /* Set currentProcess to 0 too. */
+    setKernelDataSegment();
     currentProcess = 0;
+    restoreDataSegment();
+    return;
 }
 
 void handleTimerInterrupt(int segment, int sp)
 {
-    //printString("Tic");
+    int iterator = 0;
+    int was_A_ProcessActive_Found = FALSE;
+    int current_process_index = (segment / 0x1000) - 2;
+
+    /* The scheduler should first save the stack pointer (sp) in the current process table entry. */
+
+    processTable[current_process_index].stackPointer = sp;
+
+    /* Then it should look through the process table starting
+       at the next entry after currentProcess and choose another
+       process to run (it should loop around if it has to). */
+
+    for (iterator = current_process_index + 1; iterator < PROCESS_TABLE_LENGTH; iterator++)
+    {
+        if (processTable[iterator].isActive == TRUE)
+        {
+            was_A_ProcessActive_Found = TRUE;
+
+            /* Finally it should set currentProcess to that entry, and
+               call returnFromTimer with that entry's segment and stack pointer. */
+
+            currentProcess = iterator;
+            segment = getProcess_Segment(iterator);
+            sp = processTable[iterator].stackPointer;
+        }
+    }
+
+    if (was_A_ProcessActive_Found == FALSE)
+    {
+        for (iterator = 0; iterator < currentProcess; iterator++)
+        {
+            if (processTable[iterator].isActive == TRUE)
+            {
+                /* Finally it should set currentProcess to that entry, and
+               call returnFromTimer with that entry's segment and stack pointer. */
+
+                currentProcess = iterator;
+                segment = getProcess_Segment(iterator);
+                sp = processTable[iterator].stackPointer;
+            }
+        }
+    }
+
+    /* If there are no processes at all that are active, 
+       the scheduler should just call returnFromTimer with the
+       segment and stack pointer it was called with. */
     returnFromTimer(segment, sp);
 }
+
+void terminate()
+{
+    /*Also in your kernel, you should change terminate to no longer hang up. Instead it should reload and execute the shell at segment*/
+    //executeProgram("shell");
+
+    /* Project E - Additionally, terminate needs to be changed. Previously you had it reload the shell, but now the shell
+       never stops running. terminate's new task is to set the process that called it (currentProcess) to inactive
+       (0) and start an infinite while loop. Eventually the timer will go off and the scheduler will choose a new
+       process. 
+    */
+
+    /* You must call setKernelDataSegment before accessing the process table */
+    setKernelDataSegment();
+    processTable[currentProcess].isActive = FALSE;
+
+    while (TRUE)
+        ;
+}
+
+void executeProgram(char *name)
+{
+    char buffer[13312];
+    int i = 0;
+    int j = 0;
+    int freeProcess_index = 0;
+    int process_segment = 0x2000;
+
+    /* 1. Call readFile to load the file into a buffer. */
+    readFile(name, buffer);
+
+    /* Check to see if the file exists */
+    if (buffer[0] == 'F' && buffer[1] == 'I' && buffer[2] == 'L' && buffer[3] == 'E' && buffer[4] == ' ' && buffer[5] == 'N' && buffer[6] == 'O' && buffer[7] == 'T')
+        return;
+
+    /* Project E Part */
+
+    /* In executeProgram, search through the process table for a free entry.
+       Set that entry's active number to 1, and call launchProgram 
+       on that entry's segment. */
+
+    freeProcess_index = getFreeEntry_index();
+
+    setKernelDataSegment();
+    processTable[freeProcess_index].isActive = TRUE;
+    restoreDataSegment();
+    currentProcess = freeProcess_index;
+    process_segment = getProcess_Segment(freeProcess_index);
+
+    /*2. In a loop, transfer the file from the buffer into the bottom (0000) of memory at the segment in the parameter*/
+    for (i = 0; i < 13312; i++)
+    {
+        putInMemory(process_segment, i, buffer[i]);
+    }
+
+    /*3. Implement the function void launchProgram(int segment) in assembly*/
+    /* Project E - Change your executeProgram function to call initializeProgram instead of launchProgram. */
+    //launchProgram(process_segment);
+    initializeProgram(process_segment);
+}
+
+;
+;
+;
+;
+;
+;
+;
 
 int get_and_Mark_FreeSector(char *diskMap)
 {
@@ -326,48 +397,6 @@ void deleteFile(char *name)
 
         directory_ptr += 32;
     }
-}
-
-void terminate()
-{
-    /*Also in your kernel, you should change terminate to no longer hang up. Instead it should reload and execute the shell at segment*/
-    executeProgram("shell");
-}
-
-void executeProgram(char *name)
-{
-    char buffer[13312];
-    int i = 0;
-    int j = 0;
-    unsigned char freeProcess_index = 0;
-    int process_segment = 0x2000;
-
-    /* 1. Call readFile to load the file into a buffer. */
-    readFile(name, buffer);
-
-    /* Check to see if the file exists */
-    if (buffer[0] == 'F' && buffer[1] == 'I' && buffer[2] == 'L' && buffer[3] == 'E' && buffer[4] == ' ' && buffer[5] == 'N' && buffer[6] == 'O' && buffer[7] == 'T')
-        return;
-
-    /* Project E Part */
-
-    /* In executeProgram, search through the process table for a free entry.
-       Set that entry's active number to 1, and call launchProgram 
-       on that entry's segment. */
-
-    freeProcess_index = getFreeEntry_index();
-    processTable[freeProcess_index].isActive = TRUE;
-    currentProcess = freeProcess_index;
-    process_segment = getProcess_Segment(freeProcess_index);
-
-    /*2. In a loop, transfer the file from the buffer into the bottom (0000) of memory at the segment in the parameter*/
-    for (i = 0; i < 13312; i++)
-    {
-        putInMemory(process_segment, i, buffer[i]);
-    }
-
-    /*3. Implement the function void launchProgram(int segment) in assembly*/
-    launchProgram(process_segment);
 }
 
 int power(int base, int exp)
@@ -585,7 +614,7 @@ void handleInterrupt21(int AX, int BX, int CX, int DX)
     }
     else if (AX == 4)
     {
-        executeProgram(BX, CX);
+        executeProgram(BX);
     }
     else if (AX == 5)
     {

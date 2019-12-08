@@ -25,7 +25,7 @@
         .global _printChar
 	.global _readChar
 	.global _readSector
-        .global _compareFileNameStrings
+    .global _compareFileNameStrings
 	.global _loadFileIntoBuffer
 	.global _binToDec
 	.global _power
@@ -357,7 +357,7 @@ _returnFromTimer:
 ;the program will be located at the beginning of the segment at [sp+2]
 _initializeProgram:
         ;bx=new segment
-	push	bp
+		push	bp
         mov     bp,sp
         mov     bx,[bp+4]
 
@@ -391,7 +391,7 @@ _initializeProgram:
         ;restore the stack to the caller
         mov     sp,cx
         mov     ss,dx
-	pop	bp
+		pop	bp
         ret
 
 ;void setKernelDataSegment()

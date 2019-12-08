@@ -1,6 +1,8 @@
 ;lib.asm
 ;Michael Black, 2007
 
+;Luis Gerardo, 2019 - All this content was moved to os-api.asm
+
 ;lib.asm contains assembly functions that you can use in the shell
 
 	.global _interrupt
