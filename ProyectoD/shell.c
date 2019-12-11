@@ -205,6 +205,8 @@ void showDirHandler()
         files[iterator].name[1] = 'U';
         files[iterator].name[2] = 'L';
         files[iterator].name[3] = 'L';
+        files[iterator].name[4] = ' ';
+        files[iterator].name[5] = ' ';
         files[iterator].size = 0;
     }
 
@@ -315,23 +317,26 @@ void createFileHandler(char *fileName)
 
     /* reading the char at index 1 to check if line is empty because readString concatenates with a '\0' at the end + 1 of any given string */
 
-    if (lineSize == 0 || readLine[1] == '\0')
+    if (lineSize == 2 || lineSize == 1)
     {
         syscall_printString("You literally enter nothing! Not creating the file, that would be a waste, sorry!\n\r");
         return;
     }
 
-    while (readLine[1] != '\0' && lineSize != 0)
+    while (lineSize != 2)
     {
 
-        for (i = 0; i < lineSize; i++)
+        for (i = 0; i < lineSize - 1; i++)
         {
             buffer[totalBytes + i] = readLine[i];
         }
 
-        totalBytes += lineSize;
+        buffer[totalBytes + i] = '\n';
+        buffer[totalBytes + i + 1] = '\r';
 
-        readLine[1] = '\0';
+        totalBytes += lineSize + 1;
+
+        // clearBuffer(readLine, 512);
         syscall_printString("\n>: ");
         syscall_readString(readLine);
         lineSize = strlen(readLine);
